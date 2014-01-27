@@ -26,6 +26,7 @@ import traductor.Traductor;
 import antlr.ANTLRException;
 import antlr.CommonAST;
 import traductor.*;
+import maquinaP.*;
 
 public class Interface extends JFrame{
 					
@@ -227,6 +228,8 @@ public class Interface extends JFrame{
 						Path path = FileSystems.getDefault().getPath(urlProject);
 						Files.delete(path);
 						
+						Console c = System.console();
+						System.out.println(c);
 						cambiarContenidoTxtAreaTraductor(resultadoCompilacion);
 						cambiarContenidoTxtAreaConsola(scan.erroresLexicos);
 					}catch (ANTLRException ae){
@@ -249,7 +252,35 @@ public class Interface extends JFrame{
 			}
 			else if (buttonEjecutar == e.getSource()){
 				if(cargadaTraduccion == true){
+					String s = resultadoCompilacion;
+					String urlProject = getClass().getClassLoader().getResource(".").getPath();
+					String urlProjectSalida = getClass().getClassLoader().getResource(".").getPath();
+					urlProject = urlProject + "aux.txt";
+					urlProjectSalida = urlProjectSalida + "sal.txt";
+		            File newTextFile = new File(urlProject);
+		            FileWriter fw = null;
+					try {
+						fw = new FileWriter(newTextFile);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+		            try {
+						fw.write(s);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+		            try {
+						fw.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					
+					MaquinaP maq = new MaquinaP(urlProject, urlProjectSalida,taWest);
+			        maq.visualizaPasos(true);
+			        maq.hazTodo();
 				}
 				else{
 					JOptionPane.showMessageDialog(null,"Necesitas cargar un programa y compilarlo para poder ejecutar");
