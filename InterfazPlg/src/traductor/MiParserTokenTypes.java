@@ -1,5 +1,7 @@
 // $ANTLR : "Gramatica.g" -> "MiLexer.java"$
-package traductor;
+
+	package traductor;
+
 public interface MiParserTokenTypes {
 	int EOF = 1;
 	int NULL_TREE_LOOKAHEAD = 3;

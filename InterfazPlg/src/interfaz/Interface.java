@@ -4,7 +4,7 @@ import java.io.*;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+//import java.nio.file.Paths;
 import java.util.Scanner;
 
 import javax.swing.*;
@@ -24,8 +24,8 @@ import traductor.MiLexer;
 import traductor.MiParser;
 import traductor.Traductor;
 import antlr.ANTLRException;
-import antlr.CommonAST;
-import traductor.*;
+//import antlr.CommonAST;
+//import traductor.*;
 import maquinaP.*;
 
 public class Interface extends JFrame{

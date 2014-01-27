@@ -1,5 +1,11 @@
-class MiParser extends Parser;options {k=2;buildAST=true;}
+header{
+	package traductor;
+}
 
+class MiParser extends Parser;
+options {
+	k=2;/*buildAST=true;*/
+}
 
 tokens{
 ENTERO ;
@@ -506,7 +512,10 @@ tipo returns [Traductor tipo=null]:
 
 
 
-class MiLexer extends Lexer; options {k=2;}
+class MiLexer extends Lexer;
+options {
+	k=2;
+}
 //------------------------- Analizador Lexico ------------------------ 
 {
 	public String erroresLexicos="";
