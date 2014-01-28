@@ -1,5 +1,4 @@
 package traductor;
-
 public class Traductor  {
 	private String err="";
 	private String tipo="null";

@@ -1,6 +1,6 @@
 package traductor;
 import java.util.HashMap;
-import antlr.ANTLRException;
+//import antlr.ANTLRException;
 
 public class TablaSimbolos {
 

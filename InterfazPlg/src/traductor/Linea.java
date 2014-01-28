@@ -1,5 +1,4 @@
 package traductor;
-
 public class Linea {
 	String nombre;
 	String tipo;

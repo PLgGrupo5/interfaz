@@ -20,24 +20,29 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JFileChooser;
 
-import traductor.MiLexer;
-import traductor.MiParser;
-import traductor.Traductor;
+import traductor.*;
 import antlr.ANTLRException;
+import antlr.CommonAST;
 //import antlr.CommonAST;
 //import traductor.*;
 import maquinaP.*;
 
 public class Interface extends JFrame{
 					
-		JButton buttonVoraz;
-		JButton buttonBacktracking;
+	///////////// Objetos importantes
+//	private FileInputStream _fis = null;
+	
+//	private MiLexer _scan = null;
+//	private MiParser _par = null;
+	private MaquinaP _maqP = null;
 		
-		JButton buttonCargar;
-		JButton buttonGuardar;
-		JButton buttonCompilar;
-		JButton buttonEjecutar;
-		JButton buttonPasoPaso;
+		
+	//////////// Objetos graficos	
+		private JButton buttonCargar;
+		private JButton buttonGuardar;
+		private JButton buttonCompilar;
+		private JButton buttonEjecutar;
+		private JButton buttonPasoPaso;
 		
 		public String ficheroCargado;
 		String resultadoCompilacion;
@@ -50,6 +55,60 @@ public class Interface extends JFrame{
 		
 		boolean cargadoPrograma;
 		boolean cargadaTraduccion;
+		
+////////////////////////////////////////////////////////////////////////////
+	private void compilacion() {
+	/*
+	 	try
+		{
+	
+	 
+			String urlProject = getClass().getClassLoader().getResource(".").getPath();
+			urlProject = urlProject + "aux.txt";
+            File newTextFile = new File(urlProject);
+            FileWriter fw = new FileWriter(newTextFile);
+            fw.write(s);
+            fw.close();
+            
+			FileInputStream fis = new FileInputStream(urlProject);
+			MiLexer scan = new MiLexer(fis);
+			MiParser par = new MiParser(scan);
+			Traductor trad = par.sprog();
+			resultadoCompilacion = trad.getCod();
+			
+			Path path = FileSystems.getDefault().getPath(urlProject);
+			Files.delete(path);
+			
+			Console c = System.console();
+			System.out.println(c);
+			cambiarContenidoTxtAreaTraductor(resultadoCompilacion);
+			cambiarContenidoTxtAreaConsola(scan.erroresLexicos);
+		
+		}catch (ANTLRException ae){
+			JOptionPane.showMessageDialog(null,ae.getMessage());
+		}catch (NullPointerException ae){
+			JOptionPane.showMessageDialog(null,ae.getMessage());
+		}catch(FileNotFoundException fnfe){
+			JOptionPane.showMessageDialog(null,"No se encontro el fichero");
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		*/
+		
+	}
+	
+	private int ejecucion() {
+		return _maqP.ejecuta();
+	}
+	
+	private int ejecucionPaso() {
+		return _maqP.ejecutaOperacion();
+	}
+////////////////////////////////////////////////////////////////////////////
 
 		private JPanel getPanelBotones(){
 			
@@ -106,15 +165,15 @@ public class Interface extends JFrame{
 	        this.getContentPane().add(westPanel, "West");
 	        this.getContentPane().add(southPanel, "South");
 	        
+	                
+	        taWest = new JTextArea(contentPrograma, 35, 30);
+	        taWest.setLineWrap(true);
+	        westPanel.add(new JScrollPane(taWest));
 	        
-	        taEast = new JTextArea(contentPrograma, 35, 30);
+	        taEast = new JTextArea(contentTraduccion, 35, 30);
 	        taEast.setLineWrap(true);
 	        taEast.setEnabled(false);
 	        eastPanel.add(new JScrollPane(taEast));
-	        
-	        taWest = new JTextArea(contentTraductor, 35, 30);
-	        taWest.setLineWrap(true);
-	        westPanel.add(new JScrollPane(taWest));
 	        
 	        taSouth = new JTextArea(contentConsola, 10, 82);
 	        taSouth.setLineWrap(true);
@@ -149,7 +208,7 @@ public class Interface extends JFrame{
 		    	      + "Aqui se cargara el archivo que contiene el programa,\n" + "O también se podrá escribir un programa\n"
 		    	      + "Que cuando pulsemos el boton compilar, en caso de ser correcto y estar bien escrito mostrara el resultado en la vista derecha.";
 
-		    static String contentTraductor = "Contenedor de la traducción\n"
+		    static String contentTraduccion = "Contenedor de la traducción\n"
 		    	      + "Si hemos pulsado el boton de compilar y el texto era correcto,\n" + "aparecera aqui l traduccion del codigo\n"
 		    	      + "traduccion utilizada para ejecutar el codigo, mediante la ejecucion de las diferentes funciones, en nuestro caso dependientes de una pila";
 		    
@@ -209,42 +268,8 @@ public class Interface extends JFrame{
 			}
 			else if (buttonCompilar == e.getSource()){
 				//if(cargadoPrograma == true){
-					try
-					{
-						String s = taWest.getText();
-						String urlProject = getClass().getClassLoader().getResource(".").getPath();
-						urlProject = urlProject + "aux.txt";
-			            File newTextFile = new File(urlProject);
-			            FileWriter fw = new FileWriter(newTextFile);
-			            fw.write(s);
-			            fw.close();
-			            
-						FileInputStream fis = new FileInputStream(urlProject);
-						MiLexer scan = new MiLexer(fis);
-						MiParser par = new MiParser(scan);
-						Traductor trad = par.sprog();
-						resultadoCompilacion = trad.getCod();
-						
-						Path path = FileSystems.getDefault().getPath(urlProject);
-						Files.delete(path);
-						
-						Console c = System.console();
-						System.out.println(c);
-						cambiarContenidoTxtAreaTraductor(resultadoCompilacion);
-						cambiarContenidoTxtAreaConsola(scan.erroresLexicos);
-					}catch (ANTLRException ae){
-						JOptionPane.showMessageDialog(null,ae.getMessage());
-					}catch (NullPointerException ae){
-						JOptionPane.showMessageDialog(null,ae.getMessage());
-					}catch(FileNotFoundException fnfe){
-						JOptionPane.showMessageDialog(null,"No se encontro el fichero");
-					} catch (UnsupportedEncodingException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+				/////////////////////////////////////////
+					compilacion();
 				//}
 				//else{
 				//	JOptionPane.showMessageDialog(null,"Necesitas cargar un programa para poder compilar");
@@ -278,9 +303,13 @@ public class Interface extends JFrame{
 						e1.printStackTrace();
 					}
 					
-					MaquinaP maq = new MaquinaP(urlProject, urlProjectSalida,taWest);
+					MaquinaP maq = new MaquinaP(urlProject, urlProjectSalida);
 			        maq.visualizaPasos(true);
 			        maq.hazTodo();
+		      /*      taWest = 
+		                    System.out.print("Pila: ");
+		            -        this.consola.setText(consola.getText() + "Pila: ");
+		      */
 				}
 				else{
 					JOptionPane.showMessageDialog(null,"Necesitas cargar un programa y compilarlo para poder ejecutar");

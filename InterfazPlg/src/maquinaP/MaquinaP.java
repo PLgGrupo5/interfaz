@@ -9,9 +9,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.StringTokenizer;
-
-import javax.swing.JTextArea;
+//import java.util.StringTokenizer;
 
 public class MaquinaP {
 
@@ -20,7 +18,6 @@ public class MaquinaP {
 
     private List<String> _lineasEntrada = null;
     private List<String> _lineasSalida = null;
-
 
     private int _PC = 0;
     private LinkedList<Number> _pila = null;
@@ -31,49 +28,56 @@ public class MaquinaP {
     private String _buferSalida = "";
     private int _errorEjecucion = 0;
     private String _buferError = "";
-    private JTextArea consola;
-    
-    
+
     private boolean _visualizaPasos = false;
 
-    public MaquinaP(String dirFichEntrada, String dirFichSalida,JTextArea consolas) {
+    public MaquinaP(String dirFichEntrada, String dirFichSalida) {
         this._dirFichEntrada = dirFichEntrada;
         this._dirFichSalida = dirFichSalida;
-        this.consola = consolas;
     }
 
     public void visualizaPasos(boolean b) {
         _visualizaPasos = b;
     }
 
-    public int imprimePC() {
-        System.out.println("PC: " + _PC);
+    public int damePC() {
         return _PC;
     }
+    
+    public String imprimePC() {
+        return "PC: " + _PC;
+    }
 
-    public Number[] imprimePila() {
+    public Number[] damePila() {
         Number[] pila = new Number[_pila.size()];
         pila = _pila.toArray(pila);
-        System.out.print("Pila: ");
-        this.consola.setText(consola.getText() + "Pila: ");
-        for (int i = 0; i < pila.length; i++) {
-        	this.consola.setText(consola.getText() + pila[i] + "    ");
-            System.out.print(pila[i] + "    ");
-        }
-        this.consola.setText(consola.getText() + "\n");
-        System.out.println();
         return pila;
     }
 
-    public Number[] imprimeMemoriaDatos() {
-        Number[] memoria = _memoriaDatos;
-        System.out.print("Mem: ");
-        this.consola.setText(consola.getText() + "Mem: ");
-        for (int i = 0; i < memoria.length; i++) {
-            System.out.print(memoria[i] + "    ");
+    public String imprimePila() {
+    	return _pila.toString();
+       /* String str = "";
+        str += "Pila: ";
+        for (int i = 0; i < _pila.length; i++) {
+            str += _pila[i] + "    ";
         }
-        System.out.println();
+        str += "\n";
+        return str;*/
+    }
+
+    public Number[] dameMemoriaDatos() {
+        Number[] memoria = _memoriaDatos;
         return memoria;
+    }
+
+    public String imprimeMemoriaDatos() {
+        String str = "";
+        str += "Mem: ";
+        for (int i = 0; i < _memoriaDatos.length; i++) {
+            str += _memoriaDatos[i] + "    ";
+        }
+        str += "\n";
+        return str;
     }
 
     public boolean dimeSiFin(){
@@ -152,14 +156,12 @@ public class MaquinaP {
            }
         }
 
-
         inicializa();
         System.out.println("EJECUTANDO . . .");
         int error = ejecuta();
         if (error != 0) {
             return error;
         }
-
 
         try {
             System.out.println("Escribiendo en " + _dirFichSalida + " . . .");
@@ -182,7 +184,7 @@ public class MaquinaP {
         return 0;
      }
 
-    private int ejecuta() {
+    public int ejecuta() {
         _lineasSalida = new ArrayList<String>();
 
         System.out.println(" -------------------------------");
@@ -190,7 +192,7 @@ public class MaquinaP {
         System.out.println(" -------------------------------");
         dimeUltimaOperacion();
         imprimePC();
-        imprimeMemoriaDatos();
+        dameMemoriaDatos();
         imprimePila();
 
         for (int i = 0; i < _lineasEntrada.size(); i++) {
@@ -205,7 +207,7 @@ public class MaquinaP {
                 System.out.println("##########################################################################");
                 dimeUltimaOperacion();
                 imprimePC();
-                imprimeMemoriaDatos();
+                dameMemoriaDatos();
                 imprimePila();
             }
         }
@@ -216,13 +218,13 @@ public class MaquinaP {
         System.out.println(" -----------------------------");
         dimeUltimaOperacion();
         imprimePC();
-        imprimeMemoriaDatos();
+        dameMemoriaDatos();
         imprimePila();
 
         return 0;
     }
 
-    private int ejecutaOperacion(String linea) {
+    public int ejecutaOperacion(String linea) {
         if (_errorEjecucion != 0) {
             return _errorEjecucion;
         }
@@ -318,9 +320,6 @@ public class MaquinaP {
         _pila.push(_memoriaDatos[dir]);
     }
 
-
-
-
     private void op_menor_que() {
         Number r;
         Number n2 =  _pila.pop();
@@ -332,9 +331,6 @@ public class MaquinaP {
         }
         _pila.push(r);
     }
-
-
-
 
     private void op_mayor_que() {
         Number r;
@@ -348,9 +344,6 @@ public class MaquinaP {
         _pila.push(r);
     }
 
-
-
-
     private void op_menor_o_igual() {
         Number r;
         Number n2 =  _pila.pop();
@@ -362,9 +355,6 @@ public class MaquinaP {
         }
         _pila.push(r);
     }
-
-
-
 
     private void op_mayor_o_igual() {
         Number r;
@@ -378,9 +368,6 @@ public class MaquinaP {
         _pila.push(r);
     }
 
-
-
-
     private void op_igual() {
         Number r;
         Number n2 =  _pila.pop();
@@ -392,9 +379,6 @@ public class MaquinaP {
         }
         _pila.push(r);
     }
-
-
-
 
     private void op_distinto() {
         Number r;
@@ -408,9 +392,6 @@ public class MaquinaP {
         _pila.push(r);
     }
 
-
-
-
     private void op_suma() {
         Number r;
         Number n2 = _pila.pop();
@@ -422,9 +403,6 @@ public class MaquinaP {
         }
         _pila.push(r);
     }
-
-
-
 
     private void op_resta() {
         Number r;
@@ -438,8 +416,6 @@ public class MaquinaP {
         _pila.push(r);
     }
 
-
-
     private void op_or() {
         Number r;
         Number n2 =  _pila.pop();
@@ -447,9 +423,6 @@ public class MaquinaP {
         r = (n1.intValue() != 0 || n2.intValue() != 0) ? new Integer(1) : new Integer(0);
         _pila.push(r);
     }
-
-
-
 
     private void op_multiplicacion() {
         Number r;
@@ -463,16 +436,13 @@ public class MaquinaP {
         _pila.push(r);
     }
 
-
-
-
     private int op_division() {
         Number r;
         Number n2 =  _pila.pop();
         Number n1 = _pila.pop();
         if (n2.doubleValue() == 0.0) {
             _errorEjecucion = 1;
-            _buferError = "[Error de ejecucion] :: Divisiï¿½n por cero";
+            _buferError = "[Error de ejecucion] :: División por cero";
             System.out.println(_buferError);
             return _errorEjecucion;
         }
@@ -485,8 +455,6 @@ public class MaquinaP {
         return 0;
     }
 
-
-
     private void op_and() {
         Number r;
         Number n2 =  _pila.pop();
@@ -494,8 +462,6 @@ public class MaquinaP {
         r = (n1.intValue() != 0 && n2.intValue() != 0) ? new Integer(1) : new Integer(0);
         _pila.push(r);
     }
-
-
 
     private int op_modulo() {
         Number r;
@@ -512,8 +478,6 @@ public class MaquinaP {
         return 0;
     }
 
-
-
     private void op_invierte() {
         Number r;
         Number n =  _pila.pop();
@@ -525,16 +489,12 @@ public class MaquinaP {
         _pila.push(r);
     }
 
-
-
     private void op_not() {
         Number r;
         Number n = _pila.pop();
         r = (n.intValue() != 0) ? new Integer(0) : new Integer(1);
         _pila.push(r);
     }
-
-
 
     private void op_lectura() {
         try{
@@ -565,8 +525,6 @@ public class MaquinaP {
         }
     }
 
-
-
     private void op_escritura() {
         Number n = _pila.pop();
         System.out.println(n);
@@ -578,9 +536,9 @@ public class MaquinaP {
     }
 
     public static void main(String args[]) {
-       // MaquinaP maq = new MaquinaP("ent.txt", "sal.txt");
-       // maq.visualizaPasos(true);
-       // maq.hazTodo();
-   
+        MaquinaP maq = new MaquinaP("ent.txt", "sal.txt");
+        maq.visualizaPasos(true);
+        maq.hazTodo();
+
     }
 }

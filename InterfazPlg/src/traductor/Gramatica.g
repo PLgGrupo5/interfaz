@@ -1,10 +1,9 @@
-header{
+header {
 	package traductor;
 }
-
 class MiParser extends Parser;
 options {
-	k=2;/*buildAST=true;*/
+    k=2;/*buildAST=true;*/
 }
 
 tokens{
@@ -34,20 +33,27 @@ COMP1_2;
 NOT_COMP;
 }
 
+{String errDecs="";
+String errorSemantico="";
+String codigoGenerado="";
+String errorSintactico="";}
 
-sprog  returns [Traductor cod=null;]/*{Traductor cod;}*/:
+sprog  returns [Traductor cod= new Traductor();]/*{Traductor cod;}*/:
 					cod=prog
 					{
-						System.out.println(cod.getCod());
+						errorSemantico=cod.getErr();
+						codigoGenerado=cod.getCod();
+						//System.out.println(cod.getCod());
 						System.out.println(cod.getErr());
 					}
 					FIN
 					
 				
 					;
-prog returns [Traductor cod=null;]{TablaSimbolos TBS;}:
+prog returns [Traductor cod=new Traductor();]{TablaSimbolos TBS;}:
 					TBS=decs
 					cod=accs[TBS]
+					{cod.setErr(errDecs+cod.getErr());}
 					
 		
 				
@@ -63,7 +69,18 @@ decs returns [TablaSimbolos TB = new TablaSimbolos();]
 					dec1=dec
 					TBS=rdecs
 					{
-						TBS.insertaDec(dec1);
+						if(!TBS.isID(dec1.getNombre()))
+							TBS.insertaDec(dec1);
+						else
+							errDecs="ERROR Lin:"+
+								dec1.getLinea()
+								+", Col: "+
+								dec1.getColumna()
+								+"--Identificador '"
+								+
+								dec1.getNombre()
+								+"' duplicado.\n"+errDecs;							
+							
 						TB=TBS;
 					}
 					
@@ -91,6 +108,8 @@ dec returns [Declaracion deca = new Declaracion();]{Traductor nombreTipo; String
 						nombreVar = ident.getText();
 						//System.out.println(nombreVar);
 						Declaracion decla = new Declaracion (nombreTipo.getTipo(), nombreVar);
+						decla.setLinea(ident.getLine());
+						decla.setColumna(ident.getColumn());
 						deca=decla;
 					}
 				
@@ -103,7 +122,7 @@ dec returns [Declaracion deca = new Declaracion();]{Traductor nombreTipo; String
 //ACCIONES
 //====================================================
 
-accs [TablaSimbolos TBh] returns [Traductor cod=null]{Traductor cod1, cod2;}:
+accs [TablaSimbolos TBh] returns [Traductor cod=new Traductor();]{Traductor cod1, cod2;}:
 					cod1=acc[TBh]
 					cod2=racs[TBh] 
 					
@@ -121,11 +140,11 @@ accs [TablaSimbolos TBh] returns [Traductor cod=null]{Traductor cod1, cod2;}:
 					
         			;
 
-racs [TablaSimbolos TBh] returns [Traductor cod = null] {Traductor cod1; String desap;}:
+racs [TablaSimbolos TBh] returns [Traductor cod = new Traductor();] {Traductor cod1; String desap;}:
 					SEP
 					cod =rraccs[TBh]
 					{	
-						desap="desapila()\n";
+						desap="desapila_valor()\n";
 						cod.setCod( desap + cod.getCod());
 					}
 				
@@ -134,14 +153,14 @@ racs [TablaSimbolos TBh] returns [Traductor cod = null] {Traductor cod1; String 
         			;
 
 
-rraccs [TablaSimbolos TBh]returns [Traductor cod=null]:
+rraccs [TablaSimbolos TBh]returns [Traductor cod=new Traductor();]:
 					cod=accs[TBh]
 					
 					|{cod=new Traductor();}
 				
         			;
 
-acc [TablaSimbolos TBh] returns [Traductor cod=null] :
+acc [TablaSimbolos TBh] returns [Traductor cod=new Traductor();] :
 					cod=in[TBh] 
 	 				|cod=out[TBh]
      				|cod=exp[TBh]
@@ -149,7 +168,7 @@ acc [TablaSimbolos TBh] returns [Traductor cod=null] :
      				;
 
 
-in [TablaSimbolos TBh] returns [Traductor cod = null]{Linea linea;}:
+in [TablaSimbolos TBh] returns [Traductor cod = new Traductor();]{Linea linea;}:
 					OP_IN
 					id:ID
 					{
@@ -162,26 +181,26 @@ in [TablaSimbolos TBh] returns [Traductor cod = null]{Linea linea;}:
 									else
 									{
 										linea = TBh.getLinea(id.getText().toLowerCase());
-										cod.setCod("lectura("+linea.getDirMemoria()+")\n");
-										cod.setCod(cod.getCod()+"desapilaDir("+linea.getDirMemoria()+")\n");
-										cod.setCod(cod.getCod()+"apilaDir("+linea.getDirMemoria()+")\n");
+										cod.setCod("lectura()\n");
+										cod.setCod(cod.getCod()+"desapila_dir("+linea.getDirMemoria()+")\n");
+										cod.setCod(cod.getCod()+"apila_dir("+linea.getDirMemoria()+")\n");
 									}	
 								}
 					
         			;
-out[TablaSimbolos TBh]returns [Traductor cod = null]{Traductor cod1;}:
+out[TablaSimbolos TBh]returns [Traductor cod = new Traductor();]{Traductor cod1;}:
 					OP_OUT
 					cod=exp[TBh]
 					{
 						//cod=cod1.clone();
-						cod.setCod(cod.getCod() + "escritura\n");
+						cod.setCod(cod.getCod() + "escritura()\n");
 					}
 					
 					;
 
 
 
-exp[TablaSimbolos TBh] returns [Traductor cod=null]{Traductor cod1;Linea linea=null;String tipoLinea="";int direccion=0;} :
+exp[TablaSimbolos TBh] returns [Traductor cod=new Traductor();]{Traductor cod1;Linea linea=null;String tipoLinea="";int direccion=0;} :
 					ident:ID
 					OP_AS
 					cod1=accasign[TBh]
@@ -213,16 +232,16 @@ exp[TablaSimbolos TBh] returns [Traductor cod=null]{Traductor cod1;Linea linea=n
 									//System.out.println("dir:  ->  "+direccion);
 									
 								}
-								//cod.setCod(cod1.getCod()+"desapilaDir("+direccion+")\n");//antigua
-								cod.setCod(cod.getCod()+"desapilaDir("+direccion+")\n");//nueva
-								cod.setCod(cod.getCod()+"apilaDir("+direccion+")\n");
+								//cod.setCod(cod1.getCod()+"desapila_dir("+direccion+")\n");//antigua
+								cod.setCod(cod.getCod()+"desapila_dir("+direccion+")\n");//nueva
+								cod.setCod(cod.getCod()+"apila_dir("+direccion+")\n");
 								
 
 								
 								cod.setTipo(TBh.tipoResultante(tipoLinea,cod1.getTipo(),2,"="));
 									
 								if(cod.getTipo()=="error")
-									cod.setErr(cod.getErr()+"ERROR L:"+ident.getLine()+", C:"+ident.getColumn()+"--Tipo incompatible para la asignacion.\n");
+									cod.setErr(cod.getErr()+"ERROR L:"+ident.getLine()+", C:"+ident.getColumn()+"--Tipo incompatible para la asignación.\n");
 							
 						}
 						
@@ -232,18 +251,18 @@ exp[TablaSimbolos TBh] returns [Traductor cod=null]{Traductor cod1;Linea linea=n
 
         			;
 
-accasign [TablaSimbolos TBh]returns [Traductor cod=null]:
+accasign [TablaSimbolos TBh]returns [Traductor cod=new Traductor();]:
 					cod=exp[TBh]
 		
         			;
 
-acccomp[TablaSimbolos TBh]returns [Traductor cod=null;]{Traductor cod1;}:
+acccomp[TablaSimbolos TBh]returns [Traductor cod=new Traductor();]{Traductor cod1;}:
 					cod1=accadit[TBh]
 					cod=racccomp[TBh,cod1]
 		
         			;
 
-racccomp[TablaSimbolos TBh, Traductor codh] returns [Traductor cod=null;]{String op,oper=">";Traductor cod1;int linea=0,columna=0;}:
+racccomp[TablaSimbolos TBh, Traductor codh] returns [Traductor cod=new Traductor();]{String op,oper=">";Traductor cod1;int linea=0,columna=0;}:
 				/*	(opc:OP_COMP|opi:OP_IGUAL|opc1:OP_COMP1|opc2:OP_COMP2)*/
 				(opc:OP_COMP|opi:OP_IGUAL|opmayq:OP_MAYQ|opmenq:OP_MENQ|opmayoi:OP_MAYOI|opmenoi:OP_MENOI)
 					
@@ -299,7 +318,7 @@ racccomp[TablaSimbolos TBh, Traductor codh] returns [Traductor cod=null;]{String
 						
 						
 						cod.setTipo(TBh.tipoResultante(codh.getTipo(),cod1.getTipo(),2,oper));
-						if(cod.getTipo()=="error")cod.setErr(cod.getErr()+"ERROR L:"+linea+", C:"+columna+"--Tipo incompatible para la expresion.\n");
+						if(cod.getTipo()=="error")cod.setErr(cod.getErr()+"ERROR L:"+linea+", C:"+columna+"--Tipo incompatible para la expresión.\n");
 						cod.setCod(cod.getCod()+cod1.getCod()+op);
 						;
 					}
@@ -315,12 +334,12 @@ racccomp[TablaSimbolos TBh, Traductor codh] returns [Traductor cod=null;]{String
 			
         			;
 			
-accadit[TablaSimbolos TBh]returns [Traductor cod=null;]{Traductor cod1;}:
+accadit[TablaSimbolos TBh]returns [Traductor cod=new Traductor();]{Traductor cod1;}:
 					cod1=accmult[TBh]
 					cod=raccadit[TBh,cod1]
 				
         			;
-raccadit[TablaSimbolos TBh, Traductor codh]returns [Traductor cod=null]{Traductor cod1,cod2;String op="", oper="+";int linea=0,columna=0;}:
+raccadit[TablaSimbolos TBh, Traductor codh]returns [Traductor cod=new Traductor();]{Traductor cod1,cod2;String op="", oper="+";int linea=0,columna=0;}:
 					(opma:OP_MAS|opme:OP_MENOS|opor:OP_OR)
 					cod1=accmult[TBh]
 					{
@@ -345,7 +364,7 @@ raccadit[TablaSimbolos TBh, Traductor codh]returns [Traductor cod=null]{Traducto
 						}
 						cod2=codh.clone();	
 						cod2.setTipo(TBh.tipoResultante(codh.getTipo(),cod1.getTipo(),2,oper));
-						if(cod2.getTipo()=="error")cod2.setErr(cod2.getErr()+cod1.getErr()+"ERROR L:"+linea+", C:"+columna+"--Tipo incompatible para la operacion binaria.\n");
+						if(cod2.getTipo()=="error")cod2.setErr(cod2.getErr()+cod1.getErr()+"ERROR L:"+linea+", C:"+columna+"--Tipo incompatible para la operación binaria.\n");
 						cod2.setCod(cod2.getCod()+cod1.getCod()+op);
 					}
 					cod=raccadit[TBh,cod2]
@@ -360,14 +379,14 @@ raccadit[TablaSimbolos TBh, Traductor codh]returns [Traductor cod=null]{Traducto
 				
         			;
 
-accmult[TablaSimbolos TBh]returns [Traductor cod=null]{Traductor cod1;}:
+accmult[TablaSimbolos TBh]returns [Traductor cod=new Traductor();]{Traductor cod1;}:
 					cod1=accun[TBh]
 					cod=raccmult[TBh,cod1]
 					
 					
 			
 					;
-raccmult[TablaSimbolos TBh,Traductor codh]returns [Traductor cod=null;] {Traductor cod1,cod2=new Traductor();String op,oper="";int linea=0,columna=0;}:
+raccmult[TablaSimbolos TBh,Traductor codh]returns [Traductor cod=new Traductor();] {Traductor cod1,cod2=new Traductor();String op,oper="";int linea=0,columna=0;}:
 					(opmu:OP_MUL| opdiv:OP_DIV|opan:OP_AND|opmo:OP_MOD)
 					cod1=accun[TBh]
 								{
@@ -403,7 +422,7 @@ raccmult[TablaSimbolos TBh,Traductor codh]returns [Traductor cod=null;] {Traduct
 									cod2=codh.clone();
 									cod2.setTipo(TBh.tipoResultante(codh.getTipo(),cod1.getTipo(),2,oper));
 									if(cod2.getTipo()=="error")
-										cod2.setErr(cod2.getErr()+cod1.getErr()+"ERROR L:"+linea+", C:"+columna+"--Tipo incompatible para la operacion binaria.\n");
+										cod2.setErr(cod2.getErr()+cod1.getErr()+"ERROR L:"+linea+", C:"+columna+"--Tipo incompatible para la operación binaria.\n");
 									cod2.setCod(codh.getCod()+cod1.getCod()+op);
 									
 						
@@ -413,7 +432,7 @@ raccmult[TablaSimbolos TBh,Traductor codh]returns [Traductor cod=null;] {Traduct
 				
 					;
 
-accun[TablaSimbolos TBh] returns [Traductor cod=null;]{String op,oper="";Traductor cod1,cod2;int linea=0,columna=0;}:
+accun[TablaSimbolos TBh] returns [Traductor cod=new Traductor();]{String op,oper="";Traductor cod1,cod2;int linea=0,columna=0;}:
 					cod=factor[TBh]
 					
 					| (opme:OP_MENOS|opno:OP_NOT)
@@ -438,7 +457,7 @@ accun[TablaSimbolos TBh] returns [Traductor cod=null;]{String op,oper="";Traduct
 			 			cod=cod1.clone();	
 			 			cod.setCod(cod.getCod() + op);
 			 			cod.setTipo(TBh.tipoResultante(cod1.getTipo(),"",1,oper));
-						if(cod.getTipo()=="error")cod.setErr(cod.getErr()+"ERROR L:"+linea+", C:"+columna+"--Tipo incompatible para la operacion unaria.\n");
+						if(cod.getTipo()=="error")cod.setErr(cod.getErr()+"ERROR L:"+linea+", C:"+columna+"--Tipo incompatible para la operación unaria.\n");
 			 			
 			 		}
 					| DELIM_PAREN_A
@@ -453,7 +472,7 @@ accun[TablaSimbolos TBh] returns [Traductor cod=null;]{String op,oper="";Traduct
 			
 					;
 			
-factor[TablaSimbolos TBh]returns [Traductor cod=null;]{Linea linea;}:
+factor[TablaSimbolos TBh]returns [Traductor cod=new Traductor();]{Linea linea;}:
 					cod=num
 					|iden:ID
 					{	
@@ -466,7 +485,7 @@ factor[TablaSimbolos TBh]returns [Traductor cod=null;]{Linea linea;}:
 						else
 						{
 							linea=TBh.getLinea(iden.getText().toLowerCase());
-							cod.setCod("apilaDir("+linea.getDirMemoria()+")\n");
+							cod.setCod("apila_dir("+linea.getDirMemoria()+")\n");
 							cod.setTipo(TBh.getTipo(iden.getText()));
 						}
 
@@ -476,10 +495,10 @@ factor[TablaSimbolos TBh]returns [Traductor cod=null;]{Linea linea;}:
         		
 					;
 
-num returns[Traductor cod=null;]: r:REAL
+num returns[Traductor cod=new Traductor();]: r:REAL
 					{
 						cod=new Traductor();
-						cod.setCod("apila("+r.getText()+")\n");
+						cod.setCod("apila_valor("+r.getText()+")\n");
 						cod.setTipo("real");
 
 					}
@@ -487,7 +506,7 @@ num returns[Traductor cod=null;]: r:REAL
         			| e:ENTERO
 					{
 						cod=new Traductor();
-						cod.setCod("apila("+e.getText()+")\n");
+						cod.setCod("apila_valor("+e.getText()+")\n");
 						cod.setTipo("entero");
 					} 
 					
@@ -495,7 +514,7 @@ num returns[Traductor cod=null;]: r:REAL
 			
 					;
 
-tipo returns [Traductor tipo=null]:
+tipo returns [Traductor tipo=new Traductor();]:
 					{
 						tipo=new Traductor();
 						tipo.setTipo("real");
@@ -512,13 +531,10 @@ tipo returns [Traductor tipo=null]:
 
 
 
-class MiLexer extends Lexer;
-options {
-	k=2;
-}
+class MiLexer extends Lexer; options {k=2;}
 //------------------------- Analizador Lexico ------------------------ 
 {
-	public String erroresLexicos="";
+	String erroresLexicos="";
 }
 protected LETRA :('a'..'z') | ('A'..'Z');
 protected DIGITO: '0'..'9';
